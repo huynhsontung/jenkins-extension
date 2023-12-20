@@ -1,23 +1,36 @@
 {
-  "name": "cert-manager",
+  "name": "jenkins-ui",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "peerDeependencies": {
-    "react": "^16.9.0"
-  },
   "scripts": {
+    "start": "webpack --config ./webpack.config.js --watch",
     "build": "webpack --config ./webpack.config.js && tar -C dist -cvf dist/extension.tar resources"
   },
-  "devDependencies": {
-    "@types/react": "^16.9.0",
-    "raw-loader": "^4.0.2",
-    "react": "^16.9.0",
-    "ts-loader": "8.2.0"
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
   },
-  "dependencies": {
-    "typescript": "^4.4.3",
-    "webpack": "^4.7.2",
-    "webpack-cli": "^4.7.2"
+  "devDependencies": {
+    "@types/react": "^17.0.44",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-helmet": "^6.1.0",
+    "@types/react-router-dom": "^5.1.8",
+    "@types/styled-components": "^5.1.25",
+    "argo-ui": "git+https://github.com/argoproj/argo-ui.git",
+    "raw-loader": "^4.0.2",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.1.4",
+    "webpack-cli": "^5.1.4"
+  },
+  "peerDependencies": {
+    "@types/react": "^16.8.5",
+    "@tippyjs/react": "^4.2.6",
+    "argo-ui": "git+https://github.com/argoproj/argo-ui.git",
+    "moment": "^2.29.1",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5"
   }
 }
