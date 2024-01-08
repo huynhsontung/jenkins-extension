@@ -11,7 +11,7 @@
       "noUnusedLocals": true,
       "declaration": false,
       "allowSyntheticDefaultImports": true,
-      "lib": ["es2022", "dom"]
+      "lib": ["es2022", "dom", "DOM.Iterable"]
     },
     "include": ["./**/*"],
     "exclude": ["node_modules"]

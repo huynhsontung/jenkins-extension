@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Application, ApplicationTree } from './models/models'
 import { HealthReport, JenkinsJob } from './models/jenkins';
 import { ActionButton } from 'argo-ui/v2';
-import { PopupManager } from 'argo-ui';
 
 interface AppViewComponentProps {
   application: Application;
@@ -23,8 +22,7 @@ enum JenkinsIconSize {
 }
 
 const baseUrl = "/extensions/jenkins";
-const imagesUrl = baseUrl + "/images"
-const popup = new PopupManager();
+const imagesUrl = baseUrl + "/images";
 
 function getLowestHealthImage(healthReports: HealthReport[], size: JenkinsIconSize) {
   return `${imagesUrl}/${size}/` + healthReports.reduce((prev, curr) => {
@@ -48,6 +46,8 @@ export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const [jobIcons, setJobIcons] = useState<Map<string, string>>(new Map<string, string>());
   const [healthIcons, setHealthIcons] = useState<Map<string, string[]>>(new Map<string, string[]>());
+  const [jobToBuild, setJobToBuild] = useState<JenkinsJob>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const application = props.application;
   const applicationSpec = props.application.spec;
 
@@ -59,6 +59,16 @@ export const Extension = (props: AppViewComponentProps) => {
         "Argocd-Project-Name": applicationSpec.project
       }
     })
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+    console.log(formJson);
+  }
+
+  function handleDialogClose(e: React.SyntheticEvent<HTMLDialogElement>) {
+    console.log(e.currentTarget.returnValue);
   }
 
   useEffect(() => {
@@ -96,6 +106,19 @@ export const Extension = (props: AppViewComponentProps) => {
 
   return (
     <>
+      <dialog ref={dialogRef} onClose={handleDialogClose}>
+        <b>Build {jobToBuild?.displayName}</b>
+        <form method='dialog' onSubmit={handleSubmit}>
+          <label>
+            environment:
+            <input name="environment" defaultValue="prod" />
+          </label>
+          <div>
+            <button value='build'>Build</button>
+            <button value='cancel'>Cancel</button>
+          </div>
+        </form>
+      </dialog>
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 && jobs.map(job => (
           <div className='pod-view__node white-box pod-view__node--large'>
@@ -104,7 +127,7 @@ export const Extension = (props: AppViewComponentProps) => {
                 <div style={{ marginRight: '10px' }}>
                   <img src={jobIcons.get(job.fullName)} style={{ width: '32px', height: '32px' }} />
                   <br />
-                  <div>project</div>
+                  <div>proj</div>
                 </div>
                 <div style={{ lineHeight: '15px', display: 'flex', flexDirection: 'column' }}>
                   {job.fullName.includes('/') && <span>{job.fullName.substring(0, job.fullName.lastIndexOf('/') + 1)}</span>}
@@ -127,7 +150,11 @@ export const Extension = (props: AppViewComponentProps) => {
             </div>
             <div className='pod-view__node__container'>
               <div className='pod-view__node__quick-start-actions'>
-                <ActionButton label='Build' action={async () => await popup.confirm(`Build "${job.displayName}"`, "Placeholder for parameters")} />
+                <ActionButton label='Build' action={() => {
+                  console.log("ActionButton clicked!");
+                  setJobToBuild(job);
+                  dialogRef?.current.showModal();
+                }} />
               </div>
             </div>
           </div>
