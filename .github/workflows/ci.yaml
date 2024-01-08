@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  build-ui:
+    name: Build UI Assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install UI dependencies
+        run: yarn --cwd ui install
+
+      - name: Build UI asset
+        run: yarn --cwd ui build
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: ui/dist/extension.tar
