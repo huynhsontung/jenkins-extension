@@ -1,16 +1,16 @@
 const path = require('path');
-
-const groupKind = 'cert-manager.io/Certificate';
+const extName = "jenkins"
 
 const config = {
+  mode: "production",
   entry: {
     extension: './src/index.tsx',
   },
   output: {
-    filename: 'extensions.js',
-    path: __dirname + `/dist/resources/${groupKind}/ui`,
+    filename: `extensions-${extName}.js`,
+    path: __dirname + `/dist/resources/${extName}`,
     libraryTarget: 'window',
-    library: ['extensions', 'resources', groupKind],
+    library: ['extensions', 'app-view'],
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json', '.ttf'],
