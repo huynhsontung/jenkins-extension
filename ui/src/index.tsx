@@ -30,14 +30,15 @@ export const Extension = (props: AppViewComponentProps) => {
         "Argocd-Project-Name": application.spec.project
       }
     }));
-    Promise.all(promises).then(responses => {
-      const updatedJobs = [...jobs];
-      for (let i = 0; i < responses.length; i++) {
-        const response = responses[i];
-        updatedJobs[i].job = response.json();
-      }
-      setJobs(updatedJobs);
-    });
+    Promise.all(promises)
+      .then(async responses => {
+        const updatedJobs = [...jobs];
+        for (let i = 0; i < responses.length; i++) {
+          const response = responses[i];
+          updatedJobs[i].job = response.ok ? await response.json() : response.statusText;
+        }
+        setJobs(updatedJobs);
+      })
   }, [application])
 
   return (
