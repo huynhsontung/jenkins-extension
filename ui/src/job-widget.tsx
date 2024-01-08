@@ -72,7 +72,7 @@ export const JobWidget = (props: JobWidgetProps) => {
     // fetch last build
     if (job.lastBuild?.url) {
       const lastBuildUrl = new URL(job.lastBuild.url);
-      fetch(getProxiedRequest(BASE_URL + lastBuildUrl.pathname, application))
+      fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
         .then(resp => resp.ok
           ? resp.json() as Promise<JenkinsBuild>
           : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`)))
