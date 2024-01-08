@@ -61,15 +61,14 @@ export const Extension = (props: AppViewComponentProps) => {
 
   useEffect(() => {
     const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins")) ?? [];
-    if (!jenkinsPaths.length || !application.metadata.namespace || !application.metadata.name)
-      return;
     const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
-    nextJobs.map(job =>
+    const promises = nextJobs.map(job =>
       fetch(getProxiedRequest(`${baseUrl}/${job.path}/api/json`))
         .then(r => r.ok ? r.json() as Promise<JenkinsJob> : Promise.reject(new Error(`${r.status}: ${r.statusText}`)))
-        .then(job => setJobs([...jobs, job]))
-        .catch(console.error)
     );
+    Promise.all(promises)
+      .then(jobs => setJobs(jobs))
+      .catch(console.error);
     return () => setJobs([]);
   }, [applicationSpec]);
 
@@ -88,7 +87,9 @@ export const Extension = (props: AppViewComponentProps) => {
 
     return () => {
       jobIcons.forEach(url => url && URL.revokeObjectURL(url));
+      setJobIcons(new Map());
       healthIcons.forEach(urls => urls.forEach(url => url && URL.revokeObjectURL(url)));
+      setHealthIcons(new Map());
     }
   }, [jobs])
 
@@ -100,7 +101,7 @@ export const Extension = (props: AppViewComponentProps) => {
             <div className='pod-view__node__container--header'>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ marginRight: '10px' }}>
-                  <img src={jobIcons.get(job.fullName)} style={{ padding: '2px', width: '40px', height: '32px' }} />
+                  <img src={jobIcons.get(job.fullName)} style={{ width: '32px', height: '32px' }} />
                 </div>
                 <div style={{ lineHeight: '15px' }}>
                   <b style={{ wordWrap: 'break-word' }}>{job.displayName}</b>
@@ -111,15 +112,17 @@ export const Extension = (props: AppViewComponentProps) => {
                   </a>
                 </div>
               </div>
+              <div className='pod-view__node__info--large'>
+                {job.healthReport.map((health, i) => (
+                  <div>
+                    <img src={healthIcons.get(job.fullName)?.at(i)} style={{ width: '16px', height: '16px' }} />
+                    <div>{health.description}</div>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className='pod-view__node__container'>
-              {job.healthReport.map((health, i) => (
-                <div className='row'>
-                  <img src={healthIcons.get(job.fullName)?.at(i)} style={{ padding: '2px', width: '16px', height: '16px' }} />
-                  {health.description}
-                </div>
-              ))}
-              <div className='row'>
+              <div className='pod-view__node__quick-start-actions'>
                 <ActionButton label='Build' />
               </div>
             </div>
