@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "antd": "^4.16.13",
-    "argo-cd": "https://gitpkg.now.sh/argoproj/argo-cd/ui/src/app/shared?master",
     "argo-ui": "argoproj/argo-ui",
     "foundation-sites": "^6.4.3",
     "react": "^16.9.3",

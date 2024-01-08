@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Application, ApplicationTree } from './models/models'
 import { HealthReport, JenkinsJob } from './models/jenkins';
 import { ActionButton } from 'argo-ui/v2';
+import { PopupManager } from 'argo-ui';
 
 interface AppViewComponentProps {
   application: Application;
@@ -23,6 +24,7 @@ enum JenkinsIconSize {
 
 const baseUrl = "/extensions/jenkins";
 const imagesUrl = baseUrl + "/images"
+const popup = new PopupManager();
 
 function getLowestHealthImage(healthReports: HealthReport[], size: JenkinsIconSize) {
   return `${imagesUrl}/${size}/` + healthReports.reduce((prev, curr) => {
@@ -125,7 +127,7 @@ export const Extension = (props: AppViewComponentProps) => {
             </div>
             <div className='pod-view__node__container'>
               <div className='pod-view__node__quick-start-actions'>
-                <ActionButton label='Build' />
+                <ActionButton label='Build' action={async () => await popup.confirm(`Build "${job.displayName}"`, "Placeholder for parameters")} />
               </div>
             </div>
           </div>

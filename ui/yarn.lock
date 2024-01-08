@@ -639,10 +639,6 @@ anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-"argo-cd@https://gitpkg.now.sh/argoproj/argo-cd/ui/src/app/shared?master":
-  version "0.0.0"
-  resolved "https://gitpkg.now.sh/argoproj/argo-cd/ui/src/app/shared?master#17ce9fe3f277aad0dd1d3c2c638bb842ec430a57"
-
 argo-ui@argoproj/argo-ui:
   version "1.0.0"
   resolved "https://codeload.github.com/argoproj/argo-ui/tar.gz/c65a9520366b0c0cf0ac585618d029e60041a94d"
