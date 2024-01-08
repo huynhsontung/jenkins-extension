@@ -101,8 +101,11 @@ export const Extension = (props: AppViewComponentProps) => {
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ marginRight: '10px' }}>
                   <img src={jobIcons.get(job.fullName)} style={{ width: '32px', height: '32px' }} />
+                  <br />
+                  <div>project</div>
                 </div>
                 <div style={{ lineHeight: '15px' }}>
+                  {job.fullName.includes('/') && <span>{job.fullName.substring(0, job.fullName.lastIndexOf('/') + 1)}</span>}
                   <b style={{ wordWrap: 'break-word' }}>{job.displayName}</b>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
