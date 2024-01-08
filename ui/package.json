@@ -13,29 +13,47 @@
     ]
   },
   "devDependencies": {
-    "@types/react": "^17.0.44",
-    "@types/react-dom": "^17.0.9",
-    "@types/react-helmet": "^6.1.0",
-    "@types/react-router-dom": "^5.1.8",
+    "@types/history": "^4.7.8",
+    "@types/react": "^16.9.3",
+    "@types/react-autocomplete": "^1.8.1",
+    "@types/react-dom": "^16.9.3",
+    "@types/react-form": "^2.16.1",
+    "@types/react-helmet": "^6.1.6",
+    "@types/react-router": "^4.3.1",
+    "@types/react-router-dom": "^4.2.2",
     "@types/styled-components": "^5.1.25",
+    "@types/uuid": "^9.0.3",
+    "moment": "^2.29.4",
+    "null-loader": "^4.0.1",
     "raw-loader": "^4.0.2",
-    "react-dom": "^18.2.0",
     "sass": "^1.69.6",
     "sass-loader": "^13.3.3",
     "style-loader": "^3.3.3",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.3.3",
     "webpack": "^5.1.4",
     "webpack-cli": "^5.1.4"
   },
   "peerDependencies": {
-    "@tippyjs/react": "^4.2.6",
-    "@types/react": "^16.8.5",
     "moment": "^2.29.1",
-    "react": "^16.8.5",
-    "react-dom": "^16.8.5"
+    "react": "^16.9.3",
+    "react-dom": "^16.9.3",
+    "react-form": "^2.16.0"
   },
   "dependencies": {
-    "argo-ui": "argoproj/argo-ui"
+    "antd": "^4.16.13",
+    "argo-cd": "https://gitpkg.now.sh/argoproj/argo-cd/ui/src/app/shared?master",
+    "argo-ui": "argoproj/argo-ui",
+    "foundation-sites": "^6.4.3",
+    "react": "^16.9.3",
+    "react-autocomplete": "^1.8.1",
+    "react-dom": "^16.9.3",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.2.2",
+    "rxjs": "^7.8.1",
+    "ts-loader": "^8.2.0",
+    "typescript": "^4.9.5"
+  },
+  "resolutions": {
+    "@types/react": "^16.9.3",
+    "@types/react-dom": "^16.8.2"
   }
 }
