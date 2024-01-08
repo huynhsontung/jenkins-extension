@@ -1,4 +1,4 @@
-import * as models from './kubernetes';
+import * as models from 'argo-ui/src/models/kubernetes';
 
 interface ItemsList<T> {
     /**
