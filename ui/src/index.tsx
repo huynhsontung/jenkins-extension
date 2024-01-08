@@ -104,12 +104,12 @@ export const Extension = (props: AppViewComponentProps) => {
                   <br />
                   <div>project</div>
                 </div>
-                <div style={{ lineHeight: '15px' }}>
+                <div style={{ lineHeight: '15px', display: 'flex', flexDirection: 'column' }}>
                   {job.fullName.includes('/') && <span>{job.fullName.substring(0, job.fullName.lastIndexOf('/') + 1)}</span>}
                   <b style={{ wordWrap: 'break-word' }}>{job.displayName}</b>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                  <a href={job.url}>
+                  <a href={job.url} target='_blank' rel='noopener noreferrer'>
                     <i className='fa fa-external-link-alt' />
                   </a>
                 </div>
