@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
-import { HealthReport, JenkinsBuild, JenkinsJob } from './models/jenkins';
+import { Build, HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
 import { ActionButton } from 'argo-ui/v2';
@@ -32,23 +32,26 @@ async function getImageBlob(req: Request) {
 
 export interface JobWidgetProps {
   application: Application;
-  job: JenkinsJob;
+  displayName: string;
+  fullName: string;
+  url: string;
+  healthReport: HealthReport[];
+  lastBuildInfo: Build | null;
   buildAction?: Function;
 }
 
-export const JobWidget = (props: JobWidgetProps) => {
+export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction }: JobWidgetProps) => {
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
-  const { application, job, buildAction } = props;
 
   useEffect(() => {
-    const jobIconUrl = getLowestHealthImage(job.healthReport, JenkinsIconSize.Large);
+    const jobIconUrl = getLowestHealthImage(healthReport, JenkinsIconSize.Large);
     getImageBlob(getProxiedRequest(jobIconUrl, application)).then(url => {
       setIcon(url);
     }).catch(console.error);
 
-    const imageBlobPromises = job.healthReport.map(health => getImageBlob(getProxiedRequest(`${IMAGES_URL}/${JenkinsIconSize.Small}/${health.iconUrl}`, application)));
+    const imageBlobPromises = healthReport.map(health => getImageBlob(getProxiedRequest(`${IMAGES_URL}/${JenkinsIconSize.Small}/${health.iconUrl}`, application)));
     Promise.all(imageBlobPromises).then(urls => {
       setHealthIcons(urls);
     }).catch(console.error);
@@ -66,12 +69,12 @@ export const JobWidget = (props: JobWidgetProps) => {
         val.forEach(URL.revokeObjectURL);
       }
     }
-  }, [job]);
+  }, [healthReport]);
 
   useEffect(() => {
     // fetch last build
-    if (job.lastBuild?.url) {
-      const lastBuildUrl = new URL(job.lastBuild.url);
+    if (lastBuildInfo?.url) {
+      const lastBuildUrl = new URL(lastBuildInfo.url);
       fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
         .then(resp => resp.ok
           ? resp.json() as Promise<JenkinsBuild>
@@ -79,28 +82,28 @@ export const JobWidget = (props: JobWidgetProps) => {
         .then(setLastBuild)
         .catch(console.error);
     }
-  }, [job.lastBuild]);
+  }, [lastBuildInfo]);
 
   return (
     <>
-      <div className='pod-view__node white-box pod-view__node--large'>
+      <div className='pod-view__node white-box pod-view__node--large' style={{ display: 'flex', flexDirection: 'column' }}>
         <div className='pod-view__node__container--header'>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ marginRight: '10px' }}>
               <img src={icon} style={{ width: '32px', height: '32px' }} />
             </div>
             <div style={{ lineHeight: '15px', display: 'flex', flexDirection: 'column' }}>
-              {job.fullName.includes('/') && <span>{job.fullName.substring(0, job.fullName.lastIndexOf('/') + 1)}</span>}
-              <b style={{ wordWrap: 'break-word' }}>{job.displayName}</b>
+              {fullName.includes('/') && <span>{fullName.substring(0, fullName.lastIndexOf('/') + 1)}</span>}
+              <b style={{ wordWrap: 'break-word' }}>{displayName}</b>
             </div>
             <div style={{ marginLeft: 'auto' }}>
-              <a href={job.url} target='_blank' rel='noopener noreferrer'>
+              <a href={url} target='_blank' rel='noopener noreferrer'>
                 <i className='fa fa-external-link-alt' />
               </a>
             </div>
           </div>
           <div style={{ margin: '1em 0' }}>
-            {job.healthReport.map((health, i) => (
+            {healthReport.map((health, i) => (
               <div>
                 <img src={healthIcons.at(i)} style={{ width: '16px', height: '16px', marginRight: '8px' }} />
                 <span>{health.description}</span>

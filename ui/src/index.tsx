@@ -42,6 +42,8 @@ export const Extension = (props: AppViewComponentProps) => {
           method: 'post'
         }));
       console.log(resp);
+      // force reload all jobs
+      setJobs([...jobs]);
     }
   }
 
@@ -74,11 +76,18 @@ export const Extension = (props: AppViewComponentProps) => {
       </dialog>
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 && jobs.map(job => (
-          <JobWidget application={application} job={job} buildAction={() => {
-            console.log("ActionButton clicked!");
-            setJobToBuild(job);
-            dialogRef?.current.showModal();
-          }}></JobWidget>
+          <JobWidget
+            application={application}
+            displayName={job.displayName}
+            fullName={job.fullName}
+            url={job.url}
+            healthReport={job.healthReport}
+            lastBuildInfo={job.lastBuild}
+            buildAction={() => {
+              console.log("ActionButton clicked!");
+              setJobToBuild(job);
+              dialogRef?.current.showModal();
+            }}></JobWidget>
         ))}
       </div>
     </>
