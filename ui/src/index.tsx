@@ -18,7 +18,7 @@ export const Extension = (props: AppViewComponentProps) => {
   const application = props.application;
   
   useEffect(() => {
-    const jenkinsPaths = application.spec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins") && info.value.startsWith('jobs/')) ?? [];
+    const jenkinsPaths = application.spec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins")) ?? [];
     if (!jenkinsPaths.length || !application.metadata.namespace || !application.metadata.name) return;
     setJobs(jenkinsPaths.map<JenkinsJob>(info => ({ name: info.name, path: info.value, job: null })));
     
