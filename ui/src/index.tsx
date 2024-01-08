@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from "react";
 import { Application, ApplicationTree } from './models/models'
 import { JenkinsJob } from './models/jenkins';
-import { BASE_URL, getProxiedRequest } from './helpers';
+import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
 
 interface AppViewComponentProps {
@@ -18,18 +18,31 @@ interface JenkinsJobPath {
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const [jobToBuild, setJobToBuild] = useState<JenkinsJob>(null);
+  const buildFormRef = useRef<HTMLFormElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const application = props.application;
   const applicationSpec = props.application.spec;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    const formData = new FormData(e.currentTarget);
-    const formJson = Object.fromEntries(formData.entries());
-    console.log(formJson);
-  }
-
-  function handleDialogClose(e: React.SyntheticEvent<HTMLDialogElement>) {
+  async function handleDialogClose(e: React.SyntheticEvent<HTMLDialogElement>) {
     console.log(e.currentTarget.returnValue);
+    if (buildFormRef && e.currentTarget.returnValue === 'build' && jobToBuild.buildable) {
+      const formData = new FormData(buildFormRef.current);
+      const formJson = Object.fromEntries(formData.entries());
+      console.log(formJson);
+      const jobUrl = new URL(jobToBuild.url);
+      const hasParams = jobToBuild.property.find(p => p.parameterDefinitions?.length > 0);
+      const resp = hasParams
+        ? await fetch(new Request(BASE_URL + jobUrl.pathname + "buildWithParameters", {
+          ...getProxiedRequestInit(application),
+          method: 'post',
+          body: formData
+        }))
+        : await fetch(new Request(BASE_URL + jobUrl.pathname + "build", {
+          ...getProxiedRequestInit(application),
+          method: 'post'
+        }));
+      console.log(resp);
+    }
   }
 
   useEffect(() => {
@@ -48,10 +61,10 @@ export const Extension = (props: AppViewComponentProps) => {
     <>
       <dialog ref={dialogRef} onClose={handleDialogClose}>
         <b>Build {jobToBuild?.displayName}</b>
-        <form method='dialog' onSubmit={handleSubmit}>
+        <form method='dialog' ref={buildFormRef}>
           <label>
-            environment:
-            <input name="environment" defaultValue="prod" />
+            spinnakerVersion:
+            <input name="spinnakerVersion" defaultValue="1.29.0" />
           </label>
           <div>
             <button value='build'>Build</button>
