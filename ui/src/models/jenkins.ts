@@ -9,19 +9,19 @@ export interface JenkinsJob {
     name:                  string;
     url:                   string;
     buildable:             boolean;
-    builds:                Build[];
+    builds:                BuildHead[];
     color:                 string;
-    firstBuild:            Build | null;
+    firstBuild:            BuildHead | null;
     healthReport:          HealthReport[];
     inQueue:               boolean;
     keepDependencies:      boolean;
-    lastBuild:             Build | null;
-    lastCompletedBuild:    Build | null;
-    lastFailedBuild:       Build | null;
-    lastStableBuild:       Build | null;
-    lastSuccessfulBuild:   Build | null;
-    lastUnstableBuild:     Build | null;
-    lastUnsuccessfulBuild: Build | null;
+    lastBuild:             BuildHead | null;
+    lastCompletedBuild:    BuildHead | null;
+    lastFailedBuild:       BuildHead | null;
+    lastStableBuild:       BuildHead | null;
+    lastSuccessfulBuild:   BuildHead | null;
+    lastUnstableBuild:     BuildHead | null;
+    lastUnsuccessfulBuild: BuildHead | null;
     nextBuildNumber:       number;
     property:              Property[];
     queueItem:             null;
@@ -38,7 +38,7 @@ export interface Action {
     parameterDefinitions?: ParameterDefinition[];
 }
 
-export interface Build {
+export interface BuildHead {
     _class: string;
     number: number;
     url:    string;

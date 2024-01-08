@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
-import { Build, HealthReport, JenkinsBuild } from './models/jenkins';
+import { BuildHead, HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
 import { ActionButton } from 'argo-ui/v2';
@@ -36,7 +36,7 @@ export interface JobWidgetProps {
   fullName: string;
   url: string;
   healthReport: HealthReport[];
-  lastBuildInfo: Build | null;
+  lastBuildInfo: BuildHead | null;
   buildAction?: Function;
 }
 
