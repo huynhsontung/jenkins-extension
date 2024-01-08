@@ -10,43 +10,45 @@ interface AppViewComponentProps {
 interface JenkinsJob {
   name: string;
   path: string;
-  job: any;
+  value: any;
 }
 
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const application = props.application;
+  const applicationSpec = props.application.spec;
 
   useEffect(() => {
-    const jenkinsPaths = application.spec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins")) ?? [];
+    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins")) ?? [];
     if (!jenkinsPaths.length || !application.metadata.namespace || !application.metadata.name)
       return;
-    setJobs(jenkinsPaths.map<JenkinsJob>(info => ({ name: info.name, path: info.value, job: null })));
+    const nextJobs = jenkinsPaths.map<JenkinsJob>(info => ({ name: info.name, path: info.value, value: null }));
+    setJobs(nextJobs);
 
-    const promises = jenkinsPaths.map<Promise<Response>>(info => fetch(`/extensions/jenkins/${info.value}/api/json`, {
+    const promises = nextJobs.map<Promise<Response>>(job => fetch(`/extensions/jenkins/${job.path}/api/json`, {
       credentials: 'same-origin',
       headers: {
         "Argocd-Application-Name": `${application.metadata.namespace}:${application.metadata.name}`,
-        "Argocd-Project-Name": application.spec.project
+        "Argocd-Project-Name": applicationSpec.project
       }
     }));
     Promise.all(promises)
       .then(async responses => {
-        const updatedJobs = [...jobs];
+        const updatedJobs = [...nextJobs];
         for (let i = 0; i < responses.length; i++) {
           const response = responses[i];
-          updatedJobs[i].job = response.ok ? await response.json() : response.statusText;
+          updatedJobs[i].value = response.ok ? await response.json() : '';
         }
         setJobs(updatedJobs);
-      })
-  }, [application])
+      });
+  }, [applicationSpec]);
 
   return (
     <>
       {jobs.length > 0 && jobs.map(job => (
         <div className='view__node white-box false'>
-          <b>{job.name}</b>
-          <p>{job.job}</p>
+          <b>{job.path}</b>
+          <p>{job.value}</p>
         </div>
       ))}
     </>
