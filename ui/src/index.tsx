@@ -16,12 +16,13 @@ interface JenkinsJob {
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const application = props.application;
-  
+
   useEffect(() => {
     const jenkinsPaths = application.spec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins")) ?? [];
-    if (!jenkinsPaths.length || !application.metadata.namespace || !application.metadata.name) return;
+    if (!jenkinsPaths.length || !application.metadata.namespace || !application.metadata.name)
+      return;
     setJobs(jenkinsPaths.map<JenkinsJob>(info => ({ name: info.name, path: info.value, job: null })));
-    
+
     const promises = jenkinsPaths.map<Promise<Response>>(info => fetch(`/extensions/jenkins/${info.value}/api/json`, {
       credentials: 'same-origin',
       headers: {
