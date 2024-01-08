@@ -69,7 +69,6 @@ export const Extension = (props: AppViewComponentProps) => {
     Promise.all(promises)
       .then(jobs => setJobs(jobs))
       .catch(console.error);
-    return () => setJobs([]);
   }, [applicationSpec]);
 
   useEffect(() => {
@@ -112,11 +111,11 @@ export const Extension = (props: AppViewComponentProps) => {
                   </a>
                 </div>
               </div>
-              <div className='pod-view__node__info--large'>
+              <div style={{ margin: '1em 0' }}>
                 {job.healthReport.map((health, i) => (
                   <div>
-                    <img src={healthIcons.get(job.fullName)?.at(i)} style={{ width: '16px', height: '16px' }} />
-                    <div>{health.description}</div>
+                    <img src={healthIcons.get(job.fullName)?.at(i)} style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                    <span>{health.description}</span>
                   </div>
                 ))}
               </div>
