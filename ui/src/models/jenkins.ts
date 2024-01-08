@@ -83,11 +83,76 @@ export interface RunParameterDefinition extends ParameterDefinition {
 }
 
 export interface ParameterValue {
-    _class: string;
+    _class: ParameterValueClass;
     name?:  string;
     value?: boolean | string;
 }
 
 export interface SCM {
     _class: string;
+}
+
+export interface JenkinsBuild {
+    _class:            "hudson.model.FreeStyleBuild";
+    actions:           JenkinsBuildAction[];
+    artifacts:         any[];
+    building:          boolean;
+    description:       null | string;
+    displayName:       string;
+    duration:          number;
+    estimatedDuration: number;
+    executor:          any | null;
+    fullDisplayName:   string;
+    id:                string;
+    inProgress:        boolean;
+    keepLog:           boolean;
+    number:            number;
+    queueId:           number;
+    result:            null | string;
+    timestamp:         number;
+    url:               string;
+    builtOn:           string;
+    changeSet:         ChangeSet;
+    culprits:          any[];
+}
+
+export interface JenkinsBuildAction {
+    _class?:                  string;
+    parameters?:              ParameterValue[];
+    causes?:                  Cause[];
+    blockedDurationMillis?:   number;
+    blockedTimeMillis?:       number;
+    buildableDurationMillis?: number;
+    buildableTimeMillis?:     number;
+    buildingDurationMillis?:  number;
+    executingTimeMillis?:     number;
+    executorUtilization?:     number;
+    subTaskCount?:            number;
+    waitingDurationMillis?:   number;
+    waitingTimeMillis?:       number;
+    failCount?:               number;
+    skipCount?:               number;
+    totalCount?:              number;
+    urlName?:                 string;
+}
+
+export interface Cause {
+    _class:           string;
+    shortDescription: string;
+    userId?:          string;
+    userName?:        string;
+}
+
+export enum ParameterValueClass {
+    COMCloudbeesPluginsCredentialsCredentialsParameterValue = "com.cloudbees.plugins.credentials.CredentialsParameterValue",
+    HudsonModelBooleanParameterValue = "hudson.model.BooleanParameterValue",
+    HudsonModelPasswordParameterValue = "hudson.model.PasswordParameterValue",
+    HudsonModelStringParameterValue = "hudson.model.StringParameterValue",
+    HudsonModelTextParameterValue = "hudson.model.TextParameterValue",
+}
+
+export interface ChangeSet {
+    _class: string;
+    items:  any[];
+    kind:   null;
 }
