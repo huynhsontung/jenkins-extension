@@ -24,18 +24,40 @@ enum JenkinsIconSize {
 const baseUrl = "/extensions/jenkins";
 const imagesUrl = baseUrl + "/images"
 
-function getHealthImage(healthReports: HealthReport[], size: JenkinsIconSize) {
-  // Get lowest health score
+function getLowestHealthImage(healthReports: HealthReport[], size: JenkinsIconSize) {
   return `${imagesUrl}/${size}/` + healthReports.reduce((prev, curr) => {
     if (prev == null) return curr;
     return prev.score < curr.score ? prev : curr;
   }, null)?.iconUrl;
 }
 
+async function getImageBlob(req: Request) {
+  try {
+    const resp = await fetch(req);
+    const blob = await resp.blob();
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error(error);
+    return '';
+  }
+}
+
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
+  const [jobIcons, setJobIcons] = useState<Map<string, string>>(new Map<string, string>());
+  const [healthIcons, setHealthIcons] = useState<Map<string, string[]>>(new Map<string, string[]>());
   const application = props.application;
   const applicationSpec = props.application.spec;
+
+  function getProxiedRequest(url: string | URL) {
+    return new Request(url, {
+      credentials: 'same-origin',
+      headers: {
+        "Argocd-Application-Name": `${application.metadata.namespace}:${application.metadata.name}`,
+        "Argocd-Project-Name": applicationSpec.project
+      }
+    })
+  }
 
   useEffect(() => {
     const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith("jenkins")) ?? [];
@@ -43,28 +65,42 @@ export const Extension = (props: AppViewComponentProps) => {
       return;
     const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
     nextJobs.map(job =>
-      fetch(`${baseUrl}/${job.path}/api/json`, {
-        credentials: 'same-origin',
-        headers: {
-          "Argocd-Application-Name": `${application.metadata.namespace}:${application.metadata.name}`,
-          "Argocd-Project-Name": applicationSpec.project
-        }
-      })
+      fetch(getProxiedRequest(`${baseUrl}/${job.path}/api/json`))
         .then(r => r.ok ? r.json() as Promise<JenkinsJob> : Promise.reject(new Error(`${r.status}: ${r.statusText}`)))
         .then(job => setJobs([...jobs, job]))
         .catch(console.error)
     );
+    return () => setJobs([]);
   }, [applicationSpec]);
+
+  useEffect(() => {
+    jobs.forEach(job => {
+      const jobIconUrl = getLowestHealthImage(job.healthReport, JenkinsIconSize.Large);
+      getImageBlob(getProxiedRequest(jobIconUrl)).then(url => {
+        setJobIcons(new Map(jobIcons.set(job.fullName, url)));
+      }).catch(console.error);
+
+      const imageBlobPromises = job.healthReport.map(health => getImageBlob(getProxiedRequest(`${imagesUrl}/${JenkinsIconSize.Small}/${health.iconUrl}`)));
+      Promise.all(imageBlobPromises).then(urls => {
+        setHealthIcons(new Map(healthIcons.set(job.fullName, urls)));
+      }).catch(console.error);
+    });
+
+    return () => {
+      jobIcons.forEach(url => url && URL.revokeObjectURL(url));
+      healthIcons.forEach(urls => urls.forEach(url => url && URL.revokeObjectURL(url)));
+    }
+  }, [jobs])
 
   return (
     <>
-      <div className='jenkins-view__nodes-container'>
+      <div className='pod-view__nodes-container'>
         {jobs.length > 0 && jobs.map(job => (
-          <div className='jenkins-view__node white-box jenkins-view__node--large'>
-            <div className='jenkins-view__node__container--header'>
+          <div className='pod-view__node white-box pod-view__node--large'>
+            <div className='pod-view__node__container--header'>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ marginRight: '10px' }}>
-                  <img src={getHealthImage(job.healthReport, JenkinsIconSize.Large)} style={{ padding: '2px', width: '40px', height: '32px' }} />
+                  <img src={jobIcons.get(job.fullName)} style={{ padding: '2px', width: '40px', height: '32px' }} />
                 </div>
                 <div style={{ lineHeight: '15px' }}>
                   <b style={{ wordWrap: 'break-word' }}>{job.displayName}</b>
@@ -76,10 +112,10 @@ export const Extension = (props: AppViewComponentProps) => {
                 </div>
               </div>
             </div>
-            <div className='jenkins-view__node__container'>
-              {job.healthReport.map(health => (
+            <div className='pod-view__node__container'>
+              {job.healthReport.map((health, i) => (
                 <div className='row'>
-                  <img src={`${imagesUrl}/${JenkinsIconSize.Small}/${health.iconUrl}`} style={{ padding: '2px', width: '16px', height: '16px' }} />
+                  <img src={healthIcons.get(job.fullName)?.at(i)} style={{ padding: '2px', width: '16px', height: '16px' }} />
                   {health.description}
                 </div>
               ))}
