@@ -11,22 +11,38 @@ interface JobFormInterface {
 }
 
 export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
-  const jobParams = jobToBuild.property.find(
-    (job) => job._class === "hudson.model.ParametersDefinitionProperty"
-  )?.parameterDefinitions ?? [];
+  console.log(jobToBuild);
+  const jobParams =
+    jobToBuild?.property.find(
+      (job) => job._class === "hudson.model.ParametersDefinitionProperty"
+    )?.parameterDefinitions ?? [];
 
   return (
     <form method="dialog" ref={buildFormRef}>
       {jobParams.map((job) => {
-          return (
-            <select name={job.name}>
-              {job.type === ParameterDefinitionType.Choice &&
-                (job as ChoiceParameterDefinition).choices.map((choice) => (
-                  <option key={choice} value={choice}>{choice}</option>
+        return (
+          <>
+            <label htmlFor={job.name}>{job.name}: </label>
+            {job.type === ParameterDefinitionType.Choice && (
+              <select name={job.name}>
+                {(job as ChoiceParameterDefinition).choices.map((choice) => (
+                  <option key={choice} value={choice}>
+                    {choice}
+                  </option>
                 ))}
-            </select>
-          );
-        })}
+              </select>
+            )}
+            {job.type !==
+              (ParameterDefinitionType.Choice ||
+                ParameterDefinitionType.Boolean) && (
+              <input
+                name={job.name}
+                defaultValue={job?.defaultParameterValue?.value as string}
+              />
+            )}
+          </>
+        );
+      })}
       <div>
         <button value="build">Build</button>
         <button value="cancel">Cancel</button>
