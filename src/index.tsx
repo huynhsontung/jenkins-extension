@@ -4,6 +4,7 @@ import { Application, ApplicationTree } from './models/models'
 import { JenkinsJob } from './models/jenkins';
 import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
+import { JobForm } from './job-form';
 
 interface AppViewComponentProps {
   application: Application;
@@ -63,16 +64,7 @@ export const Extension = (props: AppViewComponentProps) => {
     <>
       <dialog ref={dialogRef} onClose={handleDialogClose}>
         <b>Build {jobToBuild?.displayName}</b>
-        <form method='dialog' ref={buildFormRef}>
-          <label>
-            spinnakerVersion:
-            <input name="spinnakerVersion" defaultValue="1.29.0" />
-          </label>
-          <div>
-            <button value='build'>Build</button>
-            <button value='cancel'>Cancel</button>
-          </div>
-        </form>
+        <JobForm jobToBuild={jobToBuild} buildFormRef={buildFormRef}/>
       </dialog>
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 && jobs.map(job => (
