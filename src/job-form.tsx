@@ -13,17 +13,16 @@ interface JobFormInterface {
 export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
   const jobParams = jobToBuild.property.find(
     (job) => job._class === "hudson.model.ParametersDefinitionProperty"
-  )?.parameterDefinitions;
+  )?.parameterDefinitions ?? [];
 
   return (
     <form method="dialog" ref={buildFormRef}>
-      {jobParams &&
-        jobParams?.map((job) => {
+      {jobParams.map((job) => {
           return (
             <select name={job.name}>
               {job.type === ParameterDefinitionType.Choice &&
                 (job as ChoiceParameterDefinition).choices.map((choice) => (
-                  <option value={choice}>{choice}</option>
+                  <option key={choice} value={choice}>{choice}</option>
                 ))}
             </select>
           );
