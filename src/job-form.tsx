@@ -39,6 +39,9 @@ export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
                 defaultChecked={job?.defaultParameterValue?.value as boolean}
               />
             )}
+            {job.type === ParameterDefinitionType.Password && (
+              <input type="password" name={job.name} />
+            )}
             {job.type ===
               (ParameterDefinitionType.Text ||
                 ParameterDefinitionType.String) && (
