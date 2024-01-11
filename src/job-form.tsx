@@ -11,7 +11,6 @@ interface JobFormInterface {
 }
 
 export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
-  console.log(jobToBuild);
   const jobParams =
     jobToBuild?.property.find(
       (job) => job._class === "hudson.model.ParametersDefinitionProperty"
@@ -42,14 +41,16 @@ export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
             {job.type === ParameterDefinitionType.Password && (
               <input type="password" name={job.name} />
             )}
-            {job.type ===
-              (ParameterDefinitionType.Text ||
-                ParameterDefinitionType.String) && (
-              <input
-                name={job.name}
-                defaultValue={job?.defaultParameterValue?.value as string}
-              />
-            )}
+            {
+              // TODO: shorten this
+              (job.type === ParameterDefinitionType.String ||
+                job.type === ParameterDefinitionType.Text) && (
+                <input
+                  name={job.name}
+                  defaultValue={job?.defaultParameterValue?.value as string}
+                />
+              )
+            }
           </>
         );
       })}
