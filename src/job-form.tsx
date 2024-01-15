@@ -18,43 +18,56 @@ export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
 
   return (
     <form method="dialog" ref={buildFormRef}>
-      {jobParams.map((job) => {
-        return (
-          <>
-            <label htmlFor={job.name}>{job.name}: </label>
-            {job.type === ParameterDefinitionType.Choice && (
-              <select name={job.name}>
-                {(job as ChoiceParameterDefinition).choices.map((choice) => (
-                  <option key={choice} value={choice}>
-                    {choice}
-                  </option>
-                ))}
-              </select>
-            )}
-            {job.type === ParameterDefinitionType.Boolean && (
-              <input
-                name={job.name}
-                type="checkbox"
-                defaultChecked={job?.defaultParameterValue?.value as boolean}
-              />
-            )}
-            {job.type === ParameterDefinitionType.Password && (
-              <input type="password" name={job.name} />
-            )}
-            {
-              // TODO: shorten this
-              (job.type === ParameterDefinitionType.String ||
-                job.type === ParameterDefinitionType.Text) && (
+      <div className="job-form">
+        {jobParams.map((param) => {
+          return (
+            <div className="form-field">
+              <label htmlFor={param.name}>{param.name}: </label>
+              {param.type === ParameterDefinitionType.Choice && (
+                <select name={param.name}>
+                  {(param as ChoiceParameterDefinition).choices.map(
+                    (choice) => (
+                      <option key={choice} value={choice}>
+                        {choice}
+                      </option>
+                    )
+                  )}
+                </select>
+              )}
+              {param.type === ParameterDefinitionType.Boolean && (
                 <input
-                  name={job.name}
-                  defaultValue={job?.defaultParameterValue?.value as string}
+                  name={param.name}
+                  type="checkbox"
+                  defaultChecked={
+                    param?.defaultParameterValue?.value as boolean
+                  }
                 />
-              )
-            }
-          </>
-        );
-      })}
-      <div>
+              )}
+              {param.type === ParameterDefinitionType.Password && (
+                <input type="password" name={param.name} />
+              )}
+              {
+                // TODO: shorten this
+                (param.type === ParameterDefinitionType.String ||
+                  param.type === ParameterDefinitionType.Text) && (
+                  <input
+                    name={param.name}
+                    defaultValue={param?.defaultParameterValue?.value as string}
+                  />
+                )
+              }
+              {param.type === undefined && (
+                <>
+                  The parameter{" "}
+                  <div className="unsupported-field">{param.name}</div> is not
+                  supported.
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="form-buttons">
         <button value="build">Build</button>
         <button value="cancel">Cancel</button>
       </div>
