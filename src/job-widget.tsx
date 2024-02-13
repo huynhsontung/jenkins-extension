@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import { BuildHead, HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
@@ -9,14 +9,17 @@ enum JenkinsIconSize {
   Small = '16x16',
   Medium = '24x24',
   Large = '32x32',
-  XLarge = '48x48'
+  XLarge = '48x48',
 }
 
 function getLowestHealthImage(healthReports: HealthReport[], size: JenkinsIconSize) {
-  return `${IMAGES_URL}/${size}/` + healthReports.reduce((prev, curr) => {
-    if (prev == null) return curr;
-    return prev.score < curr.score ? prev : curr;
-  }, null)?.iconUrl;
+  return (
+    `${IMAGES_URL}/${size}/` +
+    healthReports.reduce((prev, curr) => {
+      if (prev == null) return curr;
+      return prev.score < curr.score ? prev : curr;
+    }, null)?.iconUrl
+  );
 }
 
 async function getImageBlob(req: Request) {
@@ -47,14 +50,18 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
 
   useEffect(() => {
     const jobIconUrl = getLowestHealthImage(healthReport, JenkinsIconSize.Large);
-    getImageBlob(getProxiedRequest(jobIconUrl, application)).then(url => {
-      setIcon(url);
-    }).catch(console.error);
+    getImageBlob(getProxiedRequest(jobIconUrl, application))
+      .then(url => {
+        setIcon(url);
+      })
+      .catch(console.error);
 
     const imageBlobPromises = healthReport.map(health => getImageBlob(getProxiedRequest(`${IMAGES_URL}/${JenkinsIconSize.Small}/${health.iconUrl}`, application)));
-    Promise.all(imageBlobPromises).then(urls => {
-      setHealthIcons(urls);
-    }).catch(console.error);
+    Promise.all(imageBlobPromises)
+      .then(urls => {
+        setHealthIcons(urls);
+      })
+      .catch(console.error);
 
     return () => {
       if (icon) {
@@ -68,7 +75,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         setHealthIcons([]);
         val.forEach(URL.revokeObjectURL);
       }
-    }
+    };
   }, [healthReport]);
 
   useEffect(() => {
@@ -76,9 +83,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
     if (lastBuildInfo?.url) {
       const lastBuildUrl = new URL(lastBuildInfo.url);
       fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
-        .then(resp => resp.ok
-          ? resp.json() as Promise<JenkinsBuild>
-          : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`)))
+        .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
         .then(setLastBuild)
         .catch(console.error);
     }
@@ -109,13 +114,15 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
                 <span>{health.description}</span>
               </div>
             ))}
-            {lastBuild &&
+            {lastBuild && (
               <div>
                 <span>Last build: </span>
-                <a href={lastBuild.url} target='_blank' rel='noopener noreferrer'>{lastBuild.displayName}</a>
+                <a href={lastBuild.url} target='_blank' rel='noopener noreferrer'>
+                  {lastBuild.displayName}
+                </a>
                 <span>{` (${lastBuild.result})`}</span>
               </div>
-            }
+            )}
           </div>
         </div>
         <div className='pod-view__node__container'>
@@ -125,5 +132,5 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         </div>
       </div>
     </>
-  )
-}
+  );
+};

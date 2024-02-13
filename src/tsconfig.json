@@ -1,19 +1,18 @@
 {
-    "compilerOptions": {
-      "outDir": "./dist",
-      "sourceMap": true,
-      "noImplicitAny": true,
-      "module": "esnext",
-      "target": "es5",
-      "jsx": "react",
-      "moduleResolution": "node",
-      "experimentalDecorators": true,
-      "noUnusedLocals": true,
-      "declaration": false,
-      "allowSyntheticDefaultImports": true,
-      "lib": ["es2022", "dom", "DOM.Iterable"]
-    },
-    "include": ["./**/*"],
-    "exclude": ["node_modules"]
-  } 
-  
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "esnext",
+    "target": "es5",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noUnusedLocals": true,
+    "declaration": false,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["es2022", "dom", "DOM.Iterable"],
+  },
+  "include": ["./**/*"],
+  "exclude": ["node_modules"],
+}
