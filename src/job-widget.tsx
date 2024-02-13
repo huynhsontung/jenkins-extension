@@ -37,7 +37,7 @@ export interface JobWidgetProps {
   url: string;
   healthReport: HealthReport[];
   lastBuildInfo: BuildHead | null;
-  buildAction?: Function;
+  buildAction?: () => void;
 }
 
 export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction }: JobWidgetProps) => {
@@ -103,9 +103,9 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
             </div>
           </div>
           <div style={{ margin: '1em 0' }}>
-            {healthReport.map((health, i) => (
-              <div>
-                <img src={healthIcons.at(i)} style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+            {healthReport.map((health, idx) => (
+              <div key={idx}>
+                <img src={healthIcons.at(idx)} style={{ width: '16px', height: '16px', marginRight: '8px' }} />
                 <span>{health.description}</span>
               </div>
             ))}

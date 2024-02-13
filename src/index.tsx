@@ -68,8 +68,9 @@ export const Extension = (props: AppViewComponentProps) => {
         <JobForm jobToBuild={jobToBuild} buildFormRef={buildFormRef}/>
       </dialog>
       <div className='pod-view__nodes-container'>
-        {jobs.length > 0 && jobs.map(job => (
+        {jobs.length > 0 && jobs.map((job, idx) => (
           <JobWidget
+            key={idx}
             application={application}
             displayName={job.displayName}
             fullName={job.fullName}

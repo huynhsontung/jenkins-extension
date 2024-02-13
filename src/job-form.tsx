@@ -80,9 +80,9 @@ export const JobForm = ({ jobToBuild, buildFormRef }: JobFormInterface) => {
   return (
     <form method="dialog" ref={buildFormRef}>
       <div className="job-form">
-        {jobParams.map((param) => {
+        {jobParams.map((param, idx) => {
           return (
-            <div className="form-field">
+            <div key={idx} className="form-field">
               <label htmlFor={param.name}>{param.name}: </label>
               {RenderField(param)}
             </div>

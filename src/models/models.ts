@@ -591,7 +591,7 @@ export interface RepoAppDetails {
     helm?: HelmAppSpec;
     kustomize?: KustomizeAppSpec;
     plugin?: PluginAppSpec;
-    directory?: {};
+    directory?: object;
 }
 
 export interface RefsInfo {
