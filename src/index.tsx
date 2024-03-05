@@ -97,6 +97,7 @@ export const Extension = (props: AppViewComponentProps) => {
 
 export const component = Extension;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ((window: any) => {
   window.extensionsAPI.registerAppViewExtension(component, 'Jenkins', 'fa-brands fa-jenkins');
 })(window);
