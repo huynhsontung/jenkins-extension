@@ -202,7 +202,7 @@ export interface ApplicationSource {
 export interface ApplicationSourceHelm {
   valueFiles: string[];
   values?: string;
-  valuesObject?: any;
+  valuesObject?: unknown;
   parameters: HelmParameter[];
   fileParameters: HelmFileParameter[];
 }
@@ -323,7 +323,7 @@ export interface HealthStatus {
   message: string;
 }
 
-export type State = models.TypeMeta & { metadata: models.ObjectMeta } & { status: any; spec: any };
+export type State = models.TypeMeta & { metadata: models.ObjectMeta } & { status: unknown; spec: unknown };
 
 export type ReadinessGate = {
   conditionType: string;

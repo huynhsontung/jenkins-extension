@@ -27,10 +27,10 @@ export interface JenkinsJob {
   queueItem: null;
   concurrentBuild: boolean;
   disabled: boolean;
-  downstreamProjects: any[];
+  downstreamProjects: unknown[];
   labelExpression: string | null;
   scm: SCM;
-  upstreamProjects: any[];
+  upstreamProjects: unknown[];
 }
 
 export interface Action {
@@ -95,13 +95,13 @@ export interface SCM {
 export interface JenkinsBuild {
   _class: 'hudson.model.FreeStyleBuild';
   actions: JenkinsBuildAction[];
-  artifacts: any[];
+  artifacts: unknown[];
   building: boolean;
   description: null | string;
   displayName: string;
   duration: number;
   estimatedDuration: number;
-  executor: any | null;
+  executor: unknown | null;
   fullDisplayName: string;
   id: string;
   inProgress: boolean;
@@ -113,7 +113,7 @@ export interface JenkinsBuild {
   url: string;
   builtOn: string;
   changeSet: ChangeSet;
-  culprits: any[];
+  culprits: unknown[];
 }
 
 export interface JenkinsBuildAction {
@@ -153,6 +153,6 @@ export enum ParameterValueClass {
 
 export interface ChangeSet {
   _class: string;
-  items: any[];
+  items: unknown[];
   kind: null;
 }

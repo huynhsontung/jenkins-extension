@@ -17,7 +17,10 @@
         "@typescript-eslint",
         "react"
     ],
-    "rules": {
-        "@typescript-eslint/no-explicit-any": "off" // Temporary workaround until we found all the types for jenkins and models
+    "rules": {},
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     }
 }
