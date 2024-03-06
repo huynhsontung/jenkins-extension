@@ -37,10 +37,6 @@ const config = {
         test: /\.scss$/,
         use: ['style-loader', 'raw-loader', 'sass-loader'],
       },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
     ],
   },
 };
