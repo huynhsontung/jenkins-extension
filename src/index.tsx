@@ -5,7 +5,7 @@ import { JenkinsJob } from './models/jenkins';
 import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
 import { JobForm } from './job-form';
-import './styles/app.css';
+import './styles/app.scss';
 
 interface AppViewComponentProps {
   application: Application;
@@ -97,6 +97,7 @@ export const Extension = (props: AppViewComponentProps) => {
 
 export const component = Extension;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ((window: any) => {
   window.extensionsAPI.registerAppViewExtension(component, 'Jenkins', 'fa-brands fa-jenkins');
 })(window);

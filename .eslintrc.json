@@ -17,6 +17,13 @@
         "@typescript-eslint",
         "react"
     ],
-    "rules": {
-    }
+    "rules": {},
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "ignorePatterns": [
+        "webpack.config.js"
+    ]
 }

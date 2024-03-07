@@ -1,9 +1,12 @@
+$font_color: white;
+$argo_grey: #6d7f8b;
+$argo_orange: #f07548;
+
 .job-form {
   display: flex;
   flex-direction: column;
   row-gap: 10px;
 }
-
 .form-field {
   display: flex;
   flex-direction: row;
@@ -11,28 +14,24 @@
   column-gap: 12px;
   justify-content: space-between;
 }
-
 .unsupported-field {
   font-style: italic;
 }
-
 .form-buttons {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   margin-top: 15px;
-}
-
-.form-buttons > button {
-  border: 1px solid #6d7f8b;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background-color: #6d7f8b;
-  color: white;
-  min-width: 70px;
-}
-
-.form-buttons > button:hover {
-  background-color: #f07548;
-  border-color: #f07548;
+  > button {
+    border: 1px solid #6d7f8b;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background-color: $argo_grey;
+    color: $font_color;
+    min-width: 70px;
+    &:hover {
+      background-color: $argo_orange;
+      border-color: $argo_orange;
+    }
+  }
 }
