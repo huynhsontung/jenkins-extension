@@ -5,7 +5,7 @@ import { JenkinsJob } from './models/jenkins';
 import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
 import { JobForm } from './job-form';
-import './styles/app.scss';
+import './styles.scss';
 
 interface AppViewComponentProps {
   application: Application;
@@ -87,8 +87,7 @@ export const Extension = (props: AppViewComponentProps) => {
                 console.log('ActionButton clicked!');
                 setJobToBuild(job);
                 dialogRef?.current.showModal();
-              }}
-            ></JobWidget>
+              }}></JobWidget>
           ))}
       </div>
     </>
