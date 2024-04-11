@@ -59,7 +59,8 @@
     "react-router-dom": "^4.2.2",
     "rxjs": "^7.8.1",
     "ts-loader": "^8.2.0",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "usehooks-ts": "^3.1.0"
   },
   "resolutions": {
     "@types/react": "^16.9.3",

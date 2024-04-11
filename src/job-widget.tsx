@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { useInterval } from 'usehooks-ts';
 import { BuildHead, HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
@@ -47,6 +48,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
+  const [isBuilding, setIsBuilding] = useState<boolean>(false);
 
   useEffect(() => {
     const jobIconUrl = getLowestHealthImage(healthReport, JenkinsIconSize.Large);
@@ -84,10 +86,30 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
       const lastBuildUrl = new URL(lastBuildInfo.url);
       fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
         .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
-        .then(setLastBuild)
+        .then(lastBuild => {
+          setLastBuild(lastBuild);
+          setIsBuilding(lastBuild.building);
+        })
         .catch(console.error);
     }
   }, [lastBuildInfo]);
+
+  useInterval(
+    () => {
+      if (lastBuild?.url) {
+        const lastBuildUrl = new URL(lastBuild.url);
+        fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
+          .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
+          .then(lastBuild => {
+            setLastBuild(lastBuild);
+            setIsBuilding(lastBuild.building);
+            console.log(lastBuild);
+          })
+          .catch(console.error);
+      }
+    },
+    isBuilding ? 60000 : null,
+  );
 
   return (
     <>
@@ -120,7 +142,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
                 <a href={lastBuild.url} target='_blank' rel='noopener noreferrer'>
                   {lastBuild.displayName}
                 </a>
-                <span>{` (${lastBuild.result})`}</span>
+                <span>{`(${lastBuild.result ?? 'Building'})`}</span>
               </div>
             )}
           </div>
