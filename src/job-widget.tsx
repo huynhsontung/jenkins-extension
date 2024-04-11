@@ -42,13 +42,14 @@ export interface JobWidgetProps {
   healthReport: HealthReport[];
   lastBuildInfo: BuildHead | null;
   buildAction?: () => void;
+  isBuilding: boolean;
+  setBuildingJobsUrl: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction }: JobWidgetProps) => {
+export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction, isBuilding, setBuildingJobsUrl }: JobWidgetProps) => {
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
-  const [isBuilding, setIsBuilding] = useState<boolean>(false);
 
   useEffect(() => {
     const jobIconUrl = getLowestHealthImage(healthReport, JenkinsIconSize.Large);
@@ -86,10 +87,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
       const lastBuildUrl = new URL(lastBuildInfo.url);
       fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
         .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
-        .then(lastBuild => {
-          setLastBuild(lastBuild);
-          setIsBuilding(lastBuild.building);
-        })
+        .then(setLastBuild)
         .catch(console.error);
     }
   }, [lastBuildInfo]);
@@ -102,13 +100,15 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
           .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
           .then(lastBuild => {
             setLastBuild(lastBuild);
-            setIsBuilding(lastBuild.building);
+            if (lastBuild?.result) {
+              setBuildingJobsUrl(currentUrls => currentUrls.filter(url => url != lastBuild.url));
+            }
             console.log(lastBuild);
           })
           .catch(console.error);
       }
     },
-    isBuilding ? 60000 : null,
+    isBuilding ? 5000 : null,
   );
 
   return (

@@ -20,6 +20,7 @@ interface JenkinsJobPath {
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const [jobToBuild, setJobToBuild] = useState<JenkinsJob>(null);
+  const [buildingJobsUrl, setbuildingJobsUrl] = useState<string[]>([]);
   const buildFormRef = useRef<HTMLFormElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const application = props.application;
@@ -50,6 +51,7 @@ export const Extension = (props: AppViewComponentProps) => {
       console.log(resp);
       // force reload all jobs
       setJobs([...jobs]);
+      setbuildingJobsUrl((currentUrls) => [...currentUrls, jobToBuild.url]);
     }
   }
 
@@ -87,7 +89,10 @@ export const Extension = (props: AppViewComponentProps) => {
                 console.log('ActionButton clicked!');
                 setJobToBuild(job);
                 dialogRef?.current.showModal();
-              }}></JobWidget>
+              }}
+              isBuilding={buildingJobsUrl.includes(job.url)}
+              setBuildingJobsUrl={setbuildingJobsUrl}
+            />
           ))}
       </div>
     </>
