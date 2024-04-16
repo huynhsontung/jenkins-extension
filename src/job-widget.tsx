@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { useInterval } from 'usehooks-ts';
 import { BuildHead, HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
@@ -42,11 +41,9 @@ export interface JobWidgetProps {
   healthReport: HealthReport[];
   lastBuildInfo: BuildHead | null;
   buildAction?: () => void;
-  isBuilding: boolean;
-  setBuildingJobsUrl: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction, isBuilding, setBuildingJobsUrl }: JobWidgetProps) => {
+export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction}: JobWidgetProps) => {
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
@@ -91,25 +88,6 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         .catch(console.error);
     }
   }, [lastBuildInfo]);
-
-  useInterval(
-    () => {
-      if (lastBuild?.url) {
-        const lastBuildUrl = new URL(lastBuild.url);
-        fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
-          .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
-          .then(lastBuild => {
-            setLastBuild(lastBuild);
-            if (lastBuild?.result) {
-              setBuildingJobsUrl(currentUrls => currentUrls.filter(url => url != lastBuild.url));
-            }
-            console.log(lastBuild);
-          })
-          .catch(console.error);
-      }
-    },
-    isBuilding ? 5000 : null,
-  );
 
   return (
     <>

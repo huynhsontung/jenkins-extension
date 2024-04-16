@@ -5,7 +5,17 @@ import { JenkinsJob } from './models/jenkins';
 import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
 import { JobForm } from './job-form';
+import { Alert, AlertType, ActionButton } from 'argo-ui/v2';
+// import { Alert, AlertType } from 'argo-ui/v2';
 import './styles.scss';
+
+const pollingRates: { [key: string]: number } = {
+  '5s': 5000,
+  '10s': 10000,
+  '30s': 30000,
+  '1m': 60000,
+  '5m': 300000,
+};
 
 interface AppViewComponentProps {
   application: Application;
@@ -20,7 +30,8 @@ interface JenkinsJobPath {
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const [jobToBuild, setJobToBuild] = useState<JenkinsJob>(null);
-  const [buildingJobsUrl, setbuildingJobsUrl] = useState<string[]>([]);
+  const [pollRate, setPollRate] = useState<number>(null);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
   const buildFormRef = useRef<HTMLFormElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const application = props.application;
@@ -51,22 +62,40 @@ export const Extension = (props: AppViewComponentProps) => {
       console.log(resp);
       // force reload all jobs
       setJobs([...jobs]);
-      setbuildingJobsUrl((currentUrls) => [...currentUrls, jobToBuild.url]);
     }
   }
 
+  const intervalID = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins')) ?? [];
-    const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
-    const promises = nextJobs.map(job =>
-      fetch(getProxiedRequest(`${BASE_URL}/${job.path}/api/json`, application)).then(r =>
-        r.ok ? (r.json() as Promise<JenkinsJob>) : Promise.reject(new Error(`${r.status}: ${r.statusText}`)),
-      ),
-    );
-    Promise.all(promises)
-      .then(jobs => setJobs(jobs))
-      .catch(console.error);
-  }, [applicationSpec]);
+    if (!isPolling) return;
+
+    const fetchJobs = () => {
+      const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins'));
+      const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
+      const promises = nextJobs.map(job =>
+        fetch(getProxiedRequest(`${BASE_URL}/${job.path}/api/json`, application)).then(r =>
+          r.ok ? (r.json() as Promise<JenkinsJob>) : Promise.reject(new Error(`${r.status}: ${r.statusText}`)),
+        ),
+      );
+      Promise.all(promises)
+        .then(jobs => setJobs(jobs))
+        .catch(console.error);
+      console.log(jobs);
+    };
+
+    intervalID.current = setInterval(fetchJobs, pollRate);
+
+    return () => {
+      if (intervalID.current) {
+        clearInterval(intervalID.current);
+      }
+    }
+  }, [applicationSpec, isPolling, pollRate]);
+
+  function resetPollRate(): void {
+    setIsPolling(false);
+  }
 
   return (
     <>
@@ -75,6 +104,27 @@ export const Extension = (props: AppViewComponentProps) => {
         <JobForm jobToBuild={jobToBuild} buildFormRef={buildFormRef} />
       </dialog>
       <div className='pod-view__nodes-container'>
+        <form>
+          <select name='polling-rate-input' value={pollRate} onChange={e => setPollRate(parseInt(e.target.value))}>
+            {Object.keys(pollingRates).map(pr => (
+              <option key={pr} value={pollingRates[pr]}>
+                {pr}
+              </option>
+            ))}
+          </select>
+
+          <ActionButton action={resetPollRate} label='Stop Polling' style={{ marginTop: '1.5em' }} />
+        </form>
+        {
+          (jobs.length = 0 && (
+            <>
+              <Alert type={'error' as AlertType}>Jenkins Job Unavailable</Alert>
+              <p>
+                Open the <b>Resource Tab</b> or refresh the page
+              </p>
+            </>
+          ))
+        }
         {jobs.length > 0 &&
           jobs.map((job, idx) => (
             <JobWidget
@@ -90,8 +140,6 @@ export const Extension = (props: AppViewComponentProps) => {
                 setJobToBuild(job);
                 dialogRef?.current.showModal();
               }}
-              isBuilding={buildingJobsUrl.includes(job.url)}
-              setBuildingJobsUrl={setbuildingJobsUrl}
             />
           ))}
       </div>
