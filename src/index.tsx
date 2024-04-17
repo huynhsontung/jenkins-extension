@@ -54,16 +54,37 @@ export const Extension = (props: AppViewComponentProps) => {
   }
 
   useEffect(() => {
-    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins')) ?? [];
-    const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
-    const promises = nextJobs.map(job =>
-      fetch(getProxiedRequest(`${BASE_URL}/${job.path}/api/json`, application)).then(r =>
-        r.ok ? (r.json() as Promise<JenkinsJob>) : Promise.reject(new Error(`${r.status}: ${r.statusText}`)),
-      ),
-    );
-    Promise.all(promises)
-      .then(jobs => setJobs(jobs))
-      .catch(console.error);
+    const fetchJobs = async () => {
+      const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins')) ?? [];
+      const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
+      const promises = nextJobs.map(job =>
+        fetch(getProxiedRequest(`${BASE_URL}/${job.path}/api/json`, application)).then(r =>
+          r.ok ? (r.json() as Promise<JenkinsJob>) : Promise.reject(new Error(`${r.status}: ${r.statusText}`)),
+        ),
+      );
+      Promise.all(promises)
+        .then(jobs => setJobs(jobs))
+        .catch(console.error);
+    };
+
+    const fetchLastBuilds = async () => {
+      const updates = jobs.map(async job => {
+        const response = await fetch(getProxiedRequest(`${job.url}/lastBuild/api/json`, application));
+        if (!response.ok) return job;
+        const lastBuildInfo = await response.json();
+        return { ...job, lastBuild: lastBuildInfo };
+      });
+
+      Promise.all(updates)
+        .then(updatedJobs => setJobs(updatedJobs))
+        .catch(console.error);
+      console.log('Polling!');
+      console.log(updates);
+    };
+
+    fetchJobs();
+    const interval = setInterval(fetchLastBuilds, 10000);
+    return () => clearInterval(interval);
   }, [applicationSpec]);
 
   return (
@@ -87,7 +108,8 @@ export const Extension = (props: AppViewComponentProps) => {
                 console.log('ActionButton clicked!');
                 setJobToBuild(job);
                 dialogRef?.current.showModal();
-              }}></JobWidget>
+              }}
+            />
           ))}
       </div>
     </>
