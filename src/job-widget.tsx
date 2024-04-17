@@ -76,7 +76,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         val.forEach(URL.revokeObjectURL);
       }
     };
-  }, [healthReport]);
+  }, [application, healthIcons, healthReport, icon]);
 
   useEffect(() => {
     // fetch last build
@@ -87,7 +87,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         .then(setLastBuild)
         .catch(console.error);
     }
-  }, [lastBuildInfo]);
+  }, [application, lastBuildInfo]);
 
   return (
     <>

@@ -30,8 +30,8 @@ interface JenkinsJobPath {
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const [jobToBuild, setJobToBuild] = useState<JenkinsJob>(null);
-  const [pollRate, setPollRate] = useState<number>(null);
-  const [isPolling, setIsPolling] = useState<boolean>(false);
+  const [pollRate, setPollRate] = useState<number>(300000);
+  const [isPolling, setIsPolling] = useState<boolean>(true);
   const buildFormRef = useRef<HTMLFormElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const application = props.application;
@@ -69,6 +69,7 @@ export const Extension = (props: AppViewComponentProps) => {
 
   useEffect(() => {
     if (!isPolling) return;
+    console.log(isPolling);
 
     const fetchJobs = () => {
       const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins'));
@@ -78,10 +79,7 @@ export const Extension = (props: AppViewComponentProps) => {
           r.ok ? (r.json() as Promise<JenkinsJob>) : Promise.reject(new Error(`${r.status}: ${r.statusText}`)),
         ),
       );
-      Promise.all(promises)
-        .then(jobs => setJobs(jobs))
-        .catch(console.error);
-      console.log(jobs);
+      Promise.all(promises).then(setJobs).catch(console.error);
     };
 
     intervalID.current = setInterval(fetchJobs, pollRate);
@@ -90,8 +88,8 @@ export const Extension = (props: AppViewComponentProps) => {
       if (intervalID.current) {
         clearInterval(intervalID.current);
       }
-    }
-  }, [applicationSpec, isPolling, pollRate]);
+    };
+  }, [isPolling, pollRate, application, applicationSpec]);
 
   function resetPollRate(): void {
     setIsPolling(false);
@@ -116,7 +114,7 @@ export const Extension = (props: AppViewComponentProps) => {
           <ActionButton action={resetPollRate} label='Stop Polling' style={{ marginTop: '1.5em' }} />
         </form>
         {
-          (jobs.length = 0 && (
+          (jobs.length === 0 && (
             <>
               <Alert type={'error' as AlertType}>Jenkins Job Unavailable</Alert>
               <p>
