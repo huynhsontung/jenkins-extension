@@ -80,14 +80,21 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
 
   useEffect(() => {
     // fetch last build
-    if (lastBuildInfo?.url) {
-      const lastBuildUrl = new URL(lastBuildInfo.url);
-      fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
+    const fetchLastBuild = () => {
+      const pathName = new URL(url).pathname;
+      fetch(getProxiedRequest(`${BASE_URL}/${pathName}/lastBuild/api/json`, application))
         .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
         .then(setLastBuild)
         .catch(console.error);
-    }
-  }, [lastBuildInfo]);
+      console.log("Polling!")
+    };
+
+    fetchLastBuild();
+    const interval = setInterval(fetchLastBuild, 30000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [url]);
 
   return (
     <>
@@ -95,7 +102,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         <div className='pod-view__node__container--header'>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ marginRight: '10px' }}>
-              <img src={icon} style={{ width: '32px', height: '32px' }} alt="Jenkins Icon" />
+              <img src={icon} style={{ width: '32px', height: '32px' }} alt='Jenkins Icon' />
             </div>
             <div style={{ lineHeight: '15px', display: 'flex', flexDirection: 'column' }}>
               {fullName.includes('/') && <span>{fullName.substring(0, fullName.lastIndexOf('/') + 1)}</span>}
@@ -110,7 +117,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
           <div style={{ margin: '1em 0' }}>
             {healthReport.map((health, idx) => (
               <div key={idx}>
-                <img src={healthIcons.at(idx)} style={{ width: '16px', height: '16px', marginRight: '8px' }} alt="Jenkins Build Health Icon"/>
+                <img src={healthIcons.at(idx)} style={{ width: '16px', height: '16px', marginRight: '8px' }} alt='Jenkins Build Health Icon' />
                 <span>{health.description}</span>
               </div>
             ))}
