@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { BuildHead, HealthReport, JenkinsBuild } from './models/jenkins';
+import { HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
 import { ActionButton } from 'argo-ui/v2';
@@ -39,10 +39,11 @@ export interface JobWidgetProps {
   fullName: string;
   url: string;
   healthReport: HealthReport[];
+  pollRate?: number;
   buildAction?: () => void;
 }
 
-export const JobWidget = ({ application, displayName, fullName, url, healthReport, buildAction }: JobWidgetProps) => {
+export const JobWidget = ({ application, displayName, fullName, url, healthReport, buildAction, pollRate }: JobWidgetProps) => {
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
@@ -78,6 +79,8 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
   }, [healthReport]);
 
   useEffect(() => {
+    if (!pollRate) return;
+
     // fetch last build
     const fetchLastBuild = () => {
       const pathName = new URL(url).pathname;
@@ -89,11 +92,11 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
     };
 
     fetchLastBuild();
-    const interval = setInterval(fetchLastBuild, 30000);
+    const interval = setInterval(fetchLastBuild, pollRate);
     return () => {
       clearInterval(interval);
     };
-  }, [url]);
+  }, [url, pollRate]);
 
   return (
     <>
