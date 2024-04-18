@@ -67,7 +67,7 @@ export const Extension = (props: AppViewComponentProps) => {
   }
 
   useEffect(() => {
-    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins')) ?? [];
+    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins') && info.value) ?? [];
     const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
     const promises = nextJobs.map(job =>
       fetch(getProxiedRequest(`${BASE_URL}/${job.path}/api/json`, application)).then(r =>
@@ -85,16 +85,6 @@ export const Extension = (props: AppViewComponentProps) => {
         <b>Build {jobToBuild?.displayName}</b>
         <JobForm jobToBuild={jobToBuild} buildFormRef={buildFormRef} />
       </dialog>
-      <form>
-        <select name='polling-rate-input' value={pollRate} onChange={e => setPollRate(parseInt(e.target.value))}>
-          {Object.keys(pollingRates).map(pr => (
-            <option key={pr} value={pollingRates[pr]}>
-              {pr}
-            </option>
-          ))}
-        </select>
-        <ActionButton action={resetPollRate} label='Stop Polling' style={{ marginTop: '1.5em' }} />
-      </form>
       {jobs.length === 0 && (
         <div>
           <Alert type={'error' as AlertType}>Jenkins Job Unavailable</Alert>
@@ -103,6 +93,22 @@ export const Extension = (props: AppViewComponentProps) => {
           </p>
         </div>
       )}
+      <form className='poll-rate'>
+        <label htmlFor='polling-rate-input' className='poll-rate__label'>
+          <h2>Poll Rate</h2>
+          <b>WARNING</b> Please minimize setting to the lower poll rate (eg. 5s, 10s) to avoid Jenkins disruption
+        </label>
+        <div className='poll-rate__inputs'>
+          <select id='polling-rate-input' value={pollRate} onChange={e => setPollRate(parseInt(e.target.value))}>
+            {Object.keys(pollingRates).map(pr => (
+              <option key={pr} value={pollingRates[pr]}>
+                {pr}
+              </option>
+            ))}
+          </select>
+          <ActionButton action={resetPollRate} label='Stop Polling' disabled={pollRate === null} />
+        </div>
+      </form>
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 &&
           jobs.map((job, idx) => (
