@@ -86,29 +86,31 @@ export const Extension = (props: AppViewComponentProps) => {
         <JobForm jobToBuild={jobToBuild} buildFormRef={buildFormRef} />
       </dialog>
       {jobs.length === 0 && (
-        <div>
+        <div className='warning'>
           <Alert type={'error' as AlertType}>Jenkins Job Unavailable</Alert>
           <p>
             Open the <b>Resource Tab</b> or refresh the page
           </p>
         </div>
       )}
-      <form className='poll-rate'>
-        <label htmlFor='polling-rate-input' className='poll-rate__label'>
-          <h2>Poll Rate</h2>
-          <b>WARNING</b> Please minimize setting to the lower poll rate (eg. 5s, 10s) to avoid Jenkins disruption
-        </label>
-        <div className='poll-rate__inputs'>
-          <select id='polling-rate-input' value={pollRate} onChange={e => setPollRate(parseInt(e.target.value))}>
-            {Object.keys(pollingRates).map(pr => (
-              <option key={pr} value={pollingRates[pr]}>
-                {pr}
-              </option>
-            ))}
-          </select>
-          <ActionButton action={resetPollRate} label='Stop Polling' disabled={pollRate === null} />
-        </div>
-      </form>
+      {jobs.length > 0 && (
+        <form className='poll-rate'>
+          <label htmlFor='polling-rate-input' className='poll-rate__label'>
+            <h2>Poll Rate</h2>
+            <b>WARNING</b> Please minimize setting to the lower poll rate (eg. 5s, 10s) to avoid Jenkins disruption
+          </label>
+          <div className='poll-rate__inputs'>
+            <select id='polling-rate-input' value={pollRate} onChange={e => setPollRate(parseInt(e.target.value))}>
+              {Object.keys(pollingRates).map(pr => (
+                <option key={pr} value={pollingRates[pr]}>
+                  {pr}
+                </option>
+              ))}
+            </select>
+            <ActionButton action={resetPollRate} label='Stop Polling' disabled={pollRate === null} />
+          </div>
+        </form>
+      )}
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 &&
           jobs.map((job, idx) => (

@@ -2,13 +2,19 @@ $font_color: white;
 $argo_grey: #6d7f8b;
 $argo_orange: #f07548;
 
+.warning {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
 .poll-rate {
   display: flex;
   flex-direction: column;
-  &__label,
-  &__inputs,
+  row-gap: 1rem;
+
   &__inputs > select {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   &__label,
@@ -20,7 +26,7 @@ $argo_orange: #f07548;
 .job-form {
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
+  row-gap: 0.625rem;
 }
 
 .form-field {
