@@ -82,7 +82,6 @@ export const Extension = (props: AppViewComponentProps) => {
               fullName={job.fullName}
               url={job.url}
               healthReport={job.healthReport}
-              lastBuildInfo={job.lastBuild}
               buildAction={() => {
                 console.log('ActionButton clicked!');
                 setJobToBuild(job);

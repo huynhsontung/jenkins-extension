@@ -39,11 +39,10 @@ export interface JobWidgetProps {
   fullName: string;
   url: string;
   healthReport: HealthReport[];
-  lastBuildInfo: BuildHead | null;
   buildAction?: () => void;
 }
 
-export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction }: JobWidgetProps) => {
+export const JobWidget = ({ application, displayName, fullName, url, healthReport, buildAction }: JobWidgetProps) => {
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
@@ -86,7 +85,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
         .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
         .then(setLastBuild)
         .catch(console.error);
-      console.log("Polling!")
+      console.log('Polling!');
     };
 
     fetchLastBuild();
