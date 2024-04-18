@@ -2,11 +2,27 @@ $font_color: white;
 $argo_grey: #6d7f8b;
 $argo_orange: #f07548;
 
+.poll-rate {
+  display: flex;
+  flex-direction: column;
+  &__label,
+  &__inputs,
+  &__inputs > select {
+    margin-bottom: 1.5rem;
+  }
+
+  &__label,
+  &__inputs {
+    max-width: max-content;
+  }
+}
+
 .job-form {
   display: flex;
   flex-direction: column;
   row-gap: 10px;
 }
+
 .form-field {
   display: flex;
   flex-direction: row;
@@ -17,6 +33,7 @@ $argo_orange: #f07548;
 .unsupported-field {
   font-style: italic;
 }
+
 .form-buttons {
   display: flex;
   flex-direction: row;
