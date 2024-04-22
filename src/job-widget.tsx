@@ -79,20 +79,21 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
   }, [healthReport]);
 
   useEffect(() => {
+    // Effect does nothing if pollrate is null
     if (!pollRate) return;
 
-    // fetch last build
     const fetchLastBuild = () => {
       const pathName = new URL(url).pathname;
       fetch(getProxiedRequest(`${BASE_URL}/${pathName}/lastBuild/api/json`, application))
         .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
         .then(setLastBuild)
         .catch(console.error);
-      console.log('Polling!');
     };
 
-    fetchLastBuild();
-    const interval = setInterval(fetchLastBuild, pollRate);
+    fetchLastBuild(); // Execute first fetch
+    const interval = setInterval(fetchLastBuild, pollRate); // Set interval to fetch again every pollRate ms
+
+    // When effect is finished executing, clear interval
     return () => {
       clearInterval(interval);
     };

@@ -6,15 +6,9 @@ import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
 import { JobForm } from './job-form';
 import './styles.scss';
-import { ActionButton, Alert, AlertType } from 'argo-ui/v2';
+import { Alert, AlertType } from 'argo-ui/v2';
+import { PollWidget } from './poll-widget';
 
-const pollingRates: { [key: string]: number } = {
-  '5s': 5000,
-  '10s': 10000,
-  '30s': 30000,
-  '1m': 60000,
-  '5m': 300000,
-};
 interface AppViewComponentProps {
   application: Application;
   tree: ApplicationTree;
@@ -93,24 +87,7 @@ export const Extension = (props: AppViewComponentProps) => {
           </p>
         </div>
       )}
-      {jobs.length > 0 && (
-        <form className='poll-rate'>
-          <label htmlFor='polling-rate-input' className='poll-rate__label'>
-            <h2>Poll Rate</h2>
-            <b>WARNING</b> Please minimize setting to the lower poll rate (eg. 5s, 10s) to avoid Jenkins disruption
-          </label>
-          <div className='poll-rate__inputs'>
-            <select id='polling-rate-input' value={pollRate} onChange={e => setPollRate(parseInt(e.target.value))}>
-              {Object.keys(pollingRates).map(pr => (
-                <option key={pr} value={pollingRates[pr]}>
-                  {pr}
-                </option>
-              ))}
-            </select>
-            <ActionButton action={resetPollRate} label='Stop Polling' disabled={pollRate === null} />
-          </div>
-        </form>
-      )}
+      {jobs.length > 0 && <PollWidget pollRate={pollRate} setPollRate={setPollRate} resetPollRate={resetPollRate} />}
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 &&
           jobs.map((job, idx) => (
