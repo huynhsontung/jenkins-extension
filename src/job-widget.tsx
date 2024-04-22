@@ -96,7 +96,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
     return () => {
       clearInterval(interval);
     };
-  }, [url, pollRate]);
+  }, [url, pollRate, application]);
 
   return (
     <>
