@@ -23,6 +23,46 @@ $argo_orange: #f07548;
   }
 }
 
+.job-widget {
+  display: flex;
+  flex-direction: column;
+
+  &&__info {
+    display: flex;
+    align-items: center;
+
+    &&__icon {
+      margin-right: 10px;
+      > img {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    &&__name {
+      line-height: 15px;
+      display: flex;
+      flex-direction: column;
+      > b {
+        word-wrap: break-word;
+      }
+    }
+
+    &&__link {
+      margin-left: auto;
+    }
+  }
+
+  &&__healthReport {
+    margin: 1em 0;
+    &&__healthIcon {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+  }
+}
+
 .job-form {
   display: flex;
   flex-direction: column;
