@@ -101,26 +101,26 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
 
   return (
     <>
-      <div className='pod-view__node white-box pod-view__node--large' style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className='pod-view__node white-box pod-view__node--large job-widget' style={{ display: 'flex', flexDirection: 'column' }}>
         <div className='pod-view__node__container--header'>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ marginRight: '10px' }}>
-              <img src={icon} style={{ width: '32px', height: '32px' }} alt='Jenkins Icon' />
+          <div className='job-widget__info'>
+            <div className='job-widget__info-icon'>
+              <img src={icon} alt='Jenkins Icon' />
             </div>
-            <div style={{ lineHeight: '15px', display: 'flex', flexDirection: 'column' }}>
+            <div className='job-widget__info-name'>
               {fullName.includes('/') && <span>{fullName.substring(0, fullName.lastIndexOf('/') + 1)}</span>}
-              <b style={{ wordWrap: 'break-word' }}>{displayName}</b>
+              <b>{displayName}</b>
             </div>
-            <div style={{ marginLeft: 'auto' }}>
+            <div className='job-widget__info-link'>
               <a href={url} target='_blank' rel='noopener noreferrer'>
                 <i className='fa fa-external-link-alt' />
               </a>
             </div>
           </div>
-          <div style={{ margin: '1em 0' }}>
+          <div className='job-widget__healthReport'>
             {healthReport.map((health, idx) => (
               <div key={idx}>
-                <img src={healthIcons.at(idx)} style={{ width: '16px', height: '16px', marginRight: '8px' }} alt='Jenkins Build Health Icon' />
+                <img src={healthIcons.at(idx)} className='job-widget__healthReport-icon' alt='Jenkins Build Health Icon' />
                 <span>{health.description}</span>
               </div>
             ))}
