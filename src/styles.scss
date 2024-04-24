@@ -31,7 +31,7 @@ $argo_orange: #f07548;
     display: flex;
     align-items: center;
 
-    &&__icon {
+    &&-icon {
       margin-right: 10px;
       > img {
         width: 32px;
@@ -39,7 +39,7 @@ $argo_orange: #f07548;
       }
     }
 
-    &&__name {
+    &&-name {
       line-height: 15px;
       display: flex;
       flex-direction: column;
@@ -48,14 +48,14 @@ $argo_orange: #f07548;
       }
     }
 
-    &&__link {
+    &&-link {
       margin-left: auto;
     }
   }
 
   &&__healthReport {
     margin: 1em 0;
-    &&__healthIcon {
+    &&-icon {
       width: 16px;
       height: 16px;
       margin-right: 8px;
