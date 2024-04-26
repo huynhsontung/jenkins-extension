@@ -6,6 +6,8 @@ import { BASE_URL, getProxiedRequest, getProxiedRequestInit } from './helpers';
 import { JobWidget } from './job-widget';
 import { JobForm } from './job-form';
 import './styles.scss';
+import { Alert, AlertType } from 'argo-ui/v2';
+import { PollWidget } from './poll-widget';
 
 interface AppViewComponentProps {
   application: Application;
@@ -20,10 +22,15 @@ interface JenkinsJobPath {
 export const Extension = (props: AppViewComponentProps) => {
   const [jobs, setJobs] = useState<JenkinsJob[]>([]);
   const [jobToBuild, setJobToBuild] = useState<JenkinsJob>(null);
+  const [pollRate, setPollRate] = useState<number>(30000);
   const buildFormRef = useRef<HTMLFormElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const application = props.application;
   const applicationSpec = props.application.spec;
+
+  function resetPollRate(): void {
+    setPollRate(null);
+  }
 
   async function handleDialogClose(e: React.SyntheticEvent<HTMLDialogElement>) {
     console.log(e.currentTarget.returnValue);
@@ -54,7 +61,7 @@ export const Extension = (props: AppViewComponentProps) => {
   }
 
   useEffect(() => {
-    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins')) ?? [];
+    const jenkinsPaths = applicationSpec.info?.filter(info => info.name.toLowerCase().startsWith('jenkins') && info.value) ?? [];
     const nextJobs = jenkinsPaths.map<JenkinsJobPath>(info => ({ name: info.name, path: info.value, value: null }));
     const promises = nextJobs.map(job =>
       fetch(getProxiedRequest(`${BASE_URL}/${job.path}/api/json`, application)).then(r =>
@@ -64,7 +71,7 @@ export const Extension = (props: AppViewComponentProps) => {
     Promise.all(promises)
       .then(jobs => setJobs(jobs))
       .catch(console.error);
-  }, [applicationSpec]);
+  }, [application, applicationSpec]);
 
   return (
     <>
@@ -72,6 +79,15 @@ export const Extension = (props: AppViewComponentProps) => {
         <b>Build {jobToBuild?.displayName}</b>
         <JobForm jobToBuild={jobToBuild} buildFormRef={buildFormRef} />
       </dialog>
+      {jobs.length === 0 && (
+        <div className='warning'>
+          <Alert type={'error' as AlertType}>Jenkins Job Unavailable</Alert>
+          <p>
+            Open the <b>Resource Tab</b> or refresh the page
+          </p>
+        </div>
+      )}
+      {jobs.length > 0 && <PollWidget pollRate={pollRate} setPollRate={setPollRate} resetPollRate={resetPollRate} />}
       <div className='pod-view__nodes-container'>
         {jobs.length > 0 &&
           jobs.map((job, idx) => (
@@ -82,12 +98,13 @@ export const Extension = (props: AppViewComponentProps) => {
               fullName={job.fullName}
               url={job.url}
               healthReport={job.healthReport}
-              lastBuildInfo={job.lastBuild}
               buildAction={() => {
                 console.log('ActionButton clicked!');
                 setJobToBuild(job);
                 dialogRef?.current.showModal();
-              }}></JobWidget>
+              }}
+              pollRate={pollRate}
+            />
           ))}
       </div>
     </>

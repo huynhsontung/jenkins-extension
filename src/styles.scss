@@ -2,11 +2,73 @@ $font_color: white;
 $argo_grey: #6d7f8b;
 $argo_orange: #f07548;
 
+.warning {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.poll-rate {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+
+  &__inputs > select {
+    margin-bottom: 1rem;
+  }
+
+  &__label,
+  &__inputs {
+    max-width: max-content;
+  }
+}
+
+.job-widget {
+  display: flex;
+  flex-direction: column;
+
+  &__info {
+    display: flex;
+    align-items: center;
+
+    &-icon {
+      margin-right: 10px;
+      > img {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    &-name {
+      line-height: 15px;
+      display: flex;
+      flex-direction: column;
+      > b {
+        word-wrap: break-word;
+      }
+    }
+
+    &-link {
+      margin-left: auto;
+    }
+  }
+
+  &__healthReport {
+    margin: 1em 0;
+    &-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+  }
+}
+
 .job-form {
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
+  row-gap: 0.625rem;
 }
+
 .form-field {
   display: flex;
   flex-direction: row;
@@ -17,6 +79,7 @@ $argo_orange: #f07548;
 .unsupported-field {
   font-style: italic;
 }
+
 .form-buttons {
   display: flex;
   flex-direction: row;

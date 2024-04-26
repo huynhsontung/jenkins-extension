@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { BuildHead, HealthReport, JenkinsBuild } from './models/jenkins';
+import { HealthReport, JenkinsBuild } from './models/jenkins';
 import { BASE_URL, IMAGES_URL, getProxiedRequest } from './helpers';
 import { Application } from './models/models';
 import { ActionButton } from 'argo-ui/v2';
@@ -39,11 +39,11 @@ export interface JobWidgetProps {
   fullName: string;
   url: string;
   healthReport: HealthReport[];
-  lastBuildInfo: BuildHead | null;
+  pollRate?: number;
   buildAction?: () => void;
 }
 
-export const JobWidget = ({ application, displayName, fullName, url, healthReport, lastBuildInfo, buildAction }: JobWidgetProps) => {
+export const JobWidget = ({ application, displayName, fullName, url, healthReport, buildAction, pollRate }: JobWidgetProps) => {
   const [icon, setIcon] = useState<string>(null);
   const [healthIcons, setHealthIcons] = useState<string[]>([]);
   const [lastBuild, setLastBuild] = useState<JenkinsBuild>(null);
@@ -79,38 +79,48 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
   }, [healthReport]);
 
   useEffect(() => {
-    // fetch last build
-    if (lastBuildInfo?.url) {
-      const lastBuildUrl = new URL(lastBuildInfo.url);
-      fetch(getProxiedRequest(`${BASE_URL}${lastBuildUrl.pathname}/api/json`, application))
+    // Effect does nothing if pollrate is null
+    if (!pollRate) return;
+
+    const fetchLastBuild = () => {
+      const pathName = new URL(url).pathname;
+      fetch(getProxiedRequest(`${BASE_URL}/${pathName}/lastBuild/api/json`, application))
         .then(resp => (resp.ok ? (resp.json() as Promise<JenkinsBuild>) : Promise.reject(new Error(`${resp.status}: ${resp.statusText}`))))
         .then(setLastBuild)
         .catch(console.error);
-    }
-  }, [lastBuildInfo]);
+    };
+
+    fetchLastBuild(); // Execute first fetch
+    const interval = setInterval(fetchLastBuild, pollRate); // Set interval to fetch again every pollRate ms
+
+    // When effect is finished executing, clear interval
+    return () => {
+      clearInterval(interval);
+    };
+  }, [url, pollRate, application]);
 
   return (
     <>
-      <div className='pod-view__node white-box pod-view__node--large' style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className='pod-view__node white-box pod-view__node--large job-widget' style={{ display: 'flex', flexDirection: 'column' }}>
         <div className='pod-view__node__container--header'>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ marginRight: '10px' }}>
-              <img src={icon} style={{ width: '32px', height: '32px' }} />
+          <div className='job-widget__info'>
+            <div className='job-widget__info-icon'>
+              <img src={icon} alt='Jenkins Icon' />
             </div>
-            <div style={{ lineHeight: '15px', display: 'flex', flexDirection: 'column' }}>
+            <div className='job-widget__info-name'>
               {fullName.includes('/') && <span>{fullName.substring(0, fullName.lastIndexOf('/') + 1)}</span>}
-              <b style={{ wordWrap: 'break-word' }}>{displayName}</b>
+              <b>{displayName}</b>
             </div>
-            <div style={{ marginLeft: 'auto' }}>
+            <div className='job-widget__info-link'>
               <a href={url} target='_blank' rel='noopener noreferrer'>
                 <i className='fa fa-external-link-alt' />
               </a>
             </div>
           </div>
-          <div style={{ margin: '1em 0' }}>
+          <div className='job-widget__healthReport'>
             {healthReport.map((health, idx) => (
               <div key={idx}>
-                <img src={healthIcons.at(idx)} style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                <img src={healthIcons.at(idx)} className='job-widget__healthReport-icon' alt='Jenkins Build Health Icon' />
                 <span>{health.description}</span>
               </div>
             ))}
@@ -120,7 +130,7 @@ export const JobWidget = ({ application, displayName, fullName, url, healthRepor
                 <a href={lastBuild.url} target='_blank' rel='noopener noreferrer'>
                   {lastBuild.displayName}
                 </a>
-                <span>{` (${lastBuild.result})`}</span>
+                <span>{` (${lastBuild.result ?? 'Building'})`}</span>
               </div>
             )}
           </div>
